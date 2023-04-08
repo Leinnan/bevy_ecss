@@ -1,9 +1,9 @@
 use bevy::{
     ecs::system::{SystemParam, SystemState},
     prelude::{
-        debug, error, trace, Added, AssetEvent, Assets, Changed, Children, Commands, Component,
-        Deref, DerefMut, Entity, EventReader, Mut, Name, Query, Res, ResMut, Resource, With,
-        Without, World,
+        debug, error, info, trace, Added, AssetEvent, Assets, Changed, Children, Commands,
+        Component, Deref, DerefMut, Entity, EventReader, Mut, Name, Query, Res, ResMut, Resource,
+        With, Without, World,
     },
     ui::{Interaction, Node},
     utils::HashMap,
@@ -278,7 +278,7 @@ pub(crate) fn add_pseudo_class(
     mut commands: Commands,
 ) {
     for e in &q {
-        commands.entity(e).insert(PseudoClass::new(""));
+        commands.entity(e).insert(PseudoClass::new("none"));
     }
 }
 
@@ -289,9 +289,22 @@ pub(crate) fn update_pseudo_class(
 ) {
     for (i, mut pseudo_class) in &mut q {
         match &i {
-            Interaction::Clicked => pseudo_class.0 = ":focus".into(),
-            Interaction::Hovered => pseudo_class.0 = ":hover".into(),
-            Interaction::None => pseudo_class.0 = ":none".into(),
+            Interaction::Clicked => pseudo_class.0 = "focus".into(),
+            Interaction::Hovered => pseudo_class.0 = "hover".into(),
+            Interaction::None => pseudo_class.0 = "none".into(),
         }
+    }
+}
+
+pub(crate) fn update_style(
+    q: Query<&PseudoClass, Changed<PseudoClass>>,
+    mut q_sheets: Query<&mut StyleSheet>,
+) {
+    if !q.is_empty() {
+        // TODO It is not optimal at all, 
+        // it should update only nodes that are affected by change
+        q_sheets.iter_mut().for_each(|mut sheet| {
+            sheet.refresh();
+        });
     }
 }

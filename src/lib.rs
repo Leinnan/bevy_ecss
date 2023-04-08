@@ -121,7 +121,12 @@ impl Plugin for EcssPlugin {
             .add_system(system::prepare.in_set(EcssSet::Prepare))
             .add_system(system::clear_state.in_set(EcssSet::Cleanup))
             .add_system(system::add_pseudo_class.in_set(EcssSet::Prepare))
-            .add_system(system::update_pseudo_class.in_set(EcssSet::Apply));
+            .add_system(system::update_pseudo_class.in_set(EcssSet::Apply))
+            .add_system(
+                system::update_style
+                    .after(system::update_pseudo_class)
+                    .in_set(EcssSet::Apply),
+            );
 
         let prepared_state = PrepareParams::new(&mut app.world);
         app.insert_resource(prepared_state);
