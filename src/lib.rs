@@ -104,7 +104,8 @@ impl EcssPlugin {
 
 impl Plugin for EcssPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.register_type::<Class>().register_type::<PseudoClass>()
+        app.register_type::<Class>()
+            .register_type::<PseudoClass>()
             .register_type::<StyleSheet>()
             .add_asset::<StyleSheetAsset>()
             .configure_set(EcssSet::Prepare.in_base_set(CoreSet::PreUpdate))

@@ -49,14 +49,6 @@ impl PseudoClass {
         Self(class.into())
     }
 
-    pub fn focus() -> Self {
-        Self::new(":focus")
-    }
-
-    pub fn hover() -> Self {
-        Self::new(":hover")
-    }
-
     /// Checks if any of this class names matches the given class name
     fn matches(&self, class: &str) -> bool {
         self.0.split_ascii_whitespace().any(|c| c == class)

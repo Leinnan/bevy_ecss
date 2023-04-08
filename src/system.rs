@@ -1,16 +1,17 @@
 use bevy::{
     ecs::system::{SystemParam, SystemState},
     prelude::{
-        debug, error, trace, AssetEvent, Assets, Changed, Children, Component, Deref, DerefMut,
-        Entity, EventReader, Mut, Name, Query, Res, ResMut, Resource, With, World, Added, Without, Commands,
+        debug, error, trace, Added, AssetEvent, Assets, Changed, Children, Commands, Component,
+        Deref, DerefMut, Entity, EventReader, Mut, Name, Query, Res, ResMut, Resource, With,
+        Without, World,
     },
-    ui::{Node, Interaction},
+    ui::{Interaction, Node},
     utils::HashMap,
 };
 use smallvec::SmallVec;
 
 use crate::{
-    component::{Class, MatchSelectorElement, StyleSheet, PseudoClass},
+    component::{Class, MatchSelectorElement, PseudoClass, StyleSheet},
     property::StyleSheetState,
     selector::{Selector, SelectorElement},
     StyleSheetAsset,
@@ -270,12 +271,10 @@ pub(crate) fn clear_state(mut sheet_rule: ResMut<StyleSheetState>) {
     }
 }
 
-
-
-/// The [`system`](https://docs.rs/bevy_ecs/0.8.1/bevy_ecs/system/index.html) which adds pseudo class to the 
+/// The [`system`](https://docs.rs/bevy_ecs/0.8.1/bevy_ecs/system/index.html) which adds pseudo class to the
 /// objects with [`Interaction`] component
 pub(crate) fn add_pseudo_class(
-    q: Query<Entity, (Added<Interaction>,Without<PseudoClass>)>,
+    q: Query<Entity, (Added<Interaction>, Without<PseudoClass>)>,
     mut commands: Commands,
 ) {
     for e in &q {
@@ -283,16 +282,16 @@ pub(crate) fn add_pseudo_class(
     }
 }
 
-/// The [`system`](https://docs.rs/bevy_ecs/0.8.1/bevy_ecs/system/index.html) which updates pseudo class values 
+/// The [`system`](https://docs.rs/bevy_ecs/0.8.1/bevy_ecs/system/index.html) which updates pseudo class values
 /// based on values from [`Interaction`] component
 pub(crate) fn update_pseudo_class(
-    mut q: Query<(&Interaction,&mut PseudoClass), Changed<Interaction>>
+    mut q: Query<(&Interaction, &mut PseudoClass), Changed<Interaction>>,
 ) {
     for (i, mut pseudo_class) in &mut q {
         match &i {
             Interaction::Clicked => pseudo_class.0 = ":focus".into(),
             Interaction::Hovered => pseudo_class.0 = ":hover".into(),
-            Interaction::None => pseudo_class.0 = "".into(),
+            Interaction::None => pseudo_class.0 = ":none".into(),
         }
     }
 }

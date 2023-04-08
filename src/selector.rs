@@ -15,6 +15,7 @@ pub enum SelectorElement {
     Component(String),
     /// A class name component selector element, `.border`
     Class(String),
+    /// A psuedoclass name component selector element, `:hover`
     PseudoClass(String),
     /// Indicates a parent-child relation between previous elements and next elements, like `window .border`
     Child,
