@@ -20,6 +20,7 @@ use bevy::{
     ui::{BackgroundColor, Interaction, Node, Style, UiImage},
 };
 
+use component::PseudoClass;
 use property::StyleSheetState;
 use stylesheet::StyleSheetLoader;
 
@@ -103,7 +104,7 @@ impl EcssPlugin {
 
 impl Plugin for EcssPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.register_type::<Class>()
+        app.register_type::<Class>().register_type::<PseudoClass>()
             .register_type::<StyleSheet>()
             .add_asset::<StyleSheetAsset>()
             .configure_set(EcssSet::Prepare.in_base_set(CoreSet::PreUpdate))
@@ -117,7 +118,9 @@ impl Plugin for EcssPlugin {
             .init_resource::<ComponentFilterRegistry>()
             .init_asset_loader::<StyleSheetLoader>()
             .add_system(system::prepare.in_set(EcssSet::Prepare))
-            .add_system(system::clear_state.in_set(EcssSet::Cleanup));
+            .add_system(system::clear_state.in_set(EcssSet::Cleanup))
+            .add_system(system::add_pseudo_class.in_set(EcssSet::Prepare))
+            .add_system(system::update_pseudo_class.in_set(EcssSet::Apply));
 
         let prepared_state = PrepareParams::new(&mut app.world);
         app.insert_resource(prepared_state);

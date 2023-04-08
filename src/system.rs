@@ -2,15 +2,15 @@ use bevy::{
     ecs::system::{SystemParam, SystemState},
     prelude::{
         debug, error, trace, AssetEvent, Assets, Changed, Children, Component, Deref, DerefMut,
-        Entity, EventReader, Mut, Name, Query, Res, ResMut, Resource, With, World,
+        Entity, EventReader, Mut, Name, Query, Res, ResMut, Resource, With, World, Added, Without, Commands,
     },
-    ui::Node,
+    ui::{Node, Interaction},
     utils::HashMap,
 };
 use smallvec::SmallVec;
 
 use crate::{
-    component::{Class, MatchSelectorElement, StyleSheet},
+    component::{Class, MatchSelectorElement, StyleSheet, PseudoClass},
     property::StyleSheetState,
     selector::{Selector, SelectorElement},
     StyleSheetAsset,
@@ -42,6 +42,7 @@ pub(crate) struct CssQueryParam<'w, 's> {
     >,
     names: Query<'w, 's, (Entity, &'static Name)>,
     classes: Query<'w, 's, (Entity, &'static Class)>,
+    pseudo_classes: Query<'w, 's, (Entity, &'static PseudoClass)>,
     children: Query<'w, 's, &'static Children, With<Node>>,
 }
 
@@ -167,6 +168,9 @@ fn select_entities_node(
                 SelectorElement::Class(class) => {
                     get_entities_with(class.as_str(), &css_query.classes, filter)
                 }
+                SelectorElement::PseudoClass(class) => {
+                    get_entities_with(class.as_str(), &css_query.pseudo_classes, filter)
+                }
                 SelectorElement::Component(component) => {
                     get_entities_with_component(component.as_str(), world, registry, filter)
                 }
@@ -263,5 +267,32 @@ pub(crate) fn clear_state(mut sheet_rule: ResMut<StyleSheetState>) {
     if sheet_rule.len() > 0 {
         debug!("Finished applying style sheet.");
         sheet_rule.clear();
+    }
+}
+
+
+
+/// The [`system`](https://docs.rs/bevy_ecs/0.8.1/bevy_ecs/system/index.html) which adds pseudo class to the 
+/// objects with [`Interaction`] component
+pub(crate) fn add_pseudo_class(
+    q: Query<Entity, (Added<Interaction>,Without<PseudoClass>)>,
+    mut commands: Commands,
+) {
+    for e in &q {
+        commands.entity(e).insert(PseudoClass::new(""));
+    }
+}
+
+/// The [`system`](https://docs.rs/bevy_ecs/0.8.1/bevy_ecs/system/index.html) which updates pseudo class values 
+/// based on values from [`Interaction`] component
+pub(crate) fn update_pseudo_class(
+    mut q: Query<(&Interaction,&mut PseudoClass), Changed<Interaction>>
+) {
+    for (i, mut pseudo_class) in &mut q {
+        match &i {
+            Interaction::Clicked => pseudo_class.0 = ":focus".into(),
+            Interaction::Hovered => pseudo_class.0 = ":hover".into(),
+            Interaction::None => pseudo_class.0 = "".into(),
+        }
     }
 }

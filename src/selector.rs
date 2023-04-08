@@ -15,8 +15,17 @@ pub enum SelectorElement {
     Component(String),
     /// A class name component selector element, `.border`
     Class(String),
+    PseudoClass(String),
     /// Indicates a parent-child relation between previous elements and next elements, like `window .border`
     Child,
+}
+
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Default)]
+pub enum NextValueType {
+    #[default]
+    Unspecified,
+    Class,
+    PseudoClass,
 }
 
 /// A selector parsed from a `css` rule. Each selector has a internal hash used to differentiate between many rules in the same sheet.
@@ -76,6 +85,10 @@ impl std::fmt::Display for Selector {
                     result.push('.');
                     result.push_str(c);
                 }
+                SelectorElement::PseudoClass(c) => {
+                    result.push(':');
+                    result.push_str(c);
+                }
                 SelectorElement::Child => result.push(' '),
             }
         }
@@ -117,23 +130,29 @@ impl Hash for Selector {
 impl<'i> From<Vec<CowRcStr<'i>>> for Selector {
     fn from(input: Vec<CowRcStr<'i>>) -> Self {
         let mut elements = smallvec![];
-        let mut next_is_class = false;
+        let mut next_value_type = NextValueType::default();
 
         for value in input.into_iter().filter(|v| !v.is_empty()) {
             if value.as_ref() == "." {
-                next_is_class = true;
+                next_value_type = NextValueType::Class;
+                continue;
+            }
+            if value.as_ref() == ":" {
+                next_value_type = NextValueType::PseudoClass;
                 continue;
             }
 
             if let Some(value) = value.strip_prefix('#') {
                 elements.push(SelectorElement::Name(value.to_string()));
-            } else if next_is_class {
+            } else if next_value_type == NextValueType::Class {
                 elements.push(SelectorElement::Class(value.to_string()))
+            } else if next_value_type == NextValueType::PseudoClass {
+                elements.push(SelectorElement::PseudoClass(value.to_string()))
             } else {
                 elements.push(SelectorElement::Component(value.to_string()))
             }
 
-            next_is_class = false;
+            next_value_type = NextValueType::default();
         }
 
         Self::new(elements)

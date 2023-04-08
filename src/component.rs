@@ -37,6 +37,32 @@ impl Class {
     }
 }
 
+#[derive(Debug, Reflect, Component, Default, Clone, Deref)]
+#[reflect(Component)]
+pub struct PseudoClass(pub Cow<'static, str>);
+
+impl PseudoClass {
+    /// Creates a new [`PseudoClass`] with the given class names.
+    ///
+    /// Multiple class names can be used separated by spaces.
+    pub fn new(class: impl Into<Cow<'static, str>>) -> Self {
+        Self(class.into())
+    }
+
+    pub fn focus() -> Self {
+        Self::new(":focus")
+    }
+
+    pub fn hover() -> Self {
+        Self::new(":hover")
+    }
+
+    /// Checks if any of this class names matches the given class name
+    fn matches(&self, class: &str) -> bool {
+        self.0.split_ascii_whitespace().any(|c| c == class)
+    }
+}
+
 /// Applies a [`StyleSheetAsset`] on the entity which has this component.
 ///
 /// Note that style rules are applied only once when the component is added, or if the asset is changed
@@ -96,6 +122,12 @@ pub(crate) trait MatchSelectorElement {
 }
 
 impl MatchSelectorElement for Class {
+    fn matches(&self, element: &str) -> bool {
+        self.matches(element)
+    }
+}
+
+impl MatchSelectorElement for PseudoClass {
     fn matches(&self, element: &str) -> bool {
         self.matches(element)
     }

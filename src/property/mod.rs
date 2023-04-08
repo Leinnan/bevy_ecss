@@ -4,7 +4,7 @@ use bevy::{
     ecs::query::{QueryItem, ReadOnlyWorldQuery, WorldQuery},
     prelude::{
         error, trace, AssetServer, Assets, Color, Commands, Deref, DerefMut, Entity, Handle, Local,
-        Query, Res, Resource,
+        Query, Res, Resource
     },
     ui::{UiRect, Val},
     utils::HashMap,

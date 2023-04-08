@@ -7,7 +7,7 @@ use smallvec::{smallvec, SmallVec};
 
 use crate::{
     property::PropertyValues,
-    selector::{Selector, SelectorElement},
+    selector::{NextValueType, Selector, SelectorElement},
     stylesheet::StyleRule,
     EcssError,
 };
@@ -72,18 +72,22 @@ impl<'i> QualifiedRuleParser<'i> for StyleSheetParser {
     ) -> Result<Self::Prelude, ParseError<'i, Self::Error>> {
         let mut elements = smallvec![];
 
-        let mut next_is_class = false;
+        let mut next_value_type = NextValueType::default();
 
         while let Ok(token) = input.next_including_whitespace() {
             use cssparser::Token::*;
             match token {
                 Ident(v) => {
-                    if next_is_class {
-                        next_is_class = false;
-                        elements.push(SelectorElement::Class(v.to_string()));
-                    } else {
-                        elements.push(SelectorElement::Component(v.to_string()));
-                    }
+                    match next_value_type {
+                        NextValueType::Class => {
+                            elements.push(SelectorElement::Class(v.to_string()));
+                        }
+                        NextValueType::PseudoClass => {
+                            elements.push(SelectorElement::PseudoClass(v.to_string()));
+                        }
+                        _ => elements.push(SelectorElement::Component(v.to_string())),
+                    };
+                    next_value_type = NextValueType::default();
                 }
                 IDHash(v) => {
                     if v.is_empty() {
@@ -93,7 +97,8 @@ impl<'i> QualifiedRuleParser<'i> for StyleSheetParser {
                     }
                 }
                 WhiteSpace(_) => elements.push(SelectorElement::Child),
-                Delim(c) if *c == '.' => next_is_class = true,
+                Delim(c) if *c == '.' => next_value_type = NextValueType::Class,
+                Colon => next_value_type = NextValueType::PseudoClass,
                 _ => {
                     let token = token.to_css_string();
                     return Err(input.new_custom_error(EcssError::UnexpectedToken(token)));
