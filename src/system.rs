@@ -301,7 +301,7 @@ pub(crate) fn update_style(
     mut q_sheets: Query<&mut StyleSheet>,
 ) {
     if !q.is_empty() {
-        // TODO It is not optimal at all, 
+        // TODO It is not optimal at all,
         // it should update only nodes that are affected by change
         q_sheets.iter_mut().for_each(|mut sheet| {
             sheet.refresh();

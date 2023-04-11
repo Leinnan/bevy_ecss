@@ -48,7 +48,7 @@ fn change_theme(
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let dark = asset_server.load("sheets/dark_theme.css");
-    let light = asset_server.load("sheets/light_theme.css");
+    let light = asset_server.load("sheets/light_theme.scss");
 
     // Camera
     commands.spawn(Camera2dBundle::default());

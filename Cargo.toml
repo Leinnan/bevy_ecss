@@ -18,6 +18,7 @@ bevy = { version = "0.10", default-features = false, features = [
     "bevy_render",
 ] }
 cssparser = "0.29"
+grass = "0.12"
 
 smallvec = { version = "1.10", features = ["serde", "union", "const_generics"] }
 

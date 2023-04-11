@@ -35,7 +35,7 @@ impl StyleSheetAsset {
         Self {
             path: path.to_string(),
             hash,
-            rules: StyleSheetParser::parse(content),
+            rules: StyleSheetParser::parse(content, path.contains("scss")),
         }
     }
 
@@ -95,6 +95,6 @@ impl AssetLoader for StyleSheetLoader {
     }
 
     fn extensions(&self) -> &[&str] {
-        &["css"]
+        &["css", "scss"]
     }
 }
