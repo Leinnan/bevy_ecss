@@ -1,7 +1,7 @@
 use crate::{
     prelude::{Class, StyleSheet},
     property::{self, StyleSheetState},
-    stylesheet::{StyleSheetAsset, StyleSheetLoader},
+    stylesheet::*,
     system::{self, ComponentFilterRegistry, PrepareParams},
     RegisterComponentSelector, RegisterProperty,
 };
@@ -86,6 +86,10 @@ impl Plugin for BevyCssPlugin {
 
         // Resources
         let prepared_state = PrepareParams::new(&mut app.world);
+        #[cfg(feature = "sass_support")]
+        {
+            app.init_asset_loader::<SassStyleSheetLoader>();
+        }
         app.init_asset_loader::<StyleSheetLoader>()
             .init_asset::<StyleSheetAsset>()
             .init_resource::<StyleSheetState>()
