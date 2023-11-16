@@ -1,6 +1,6 @@
 use crate::{
     prelude::{Class, StyleSheet},
-    property::{self, StyleSheetState},
+    property::{self, StyleSheetState,image_property::ImageProperty},
     stylesheet::{StyleSheetAsset, StyleSheetLoader},
     system::{self, ComponentFilterRegistry, PrepareParams},
     RegisterComponentSelector, RegisterProperty,
@@ -63,6 +63,7 @@ impl BevyCssPlugin {
         app.register_property::<MarginProperty>();
         app.register_property::<PaddingProperty>();
         app.register_property::<BorderProperty>();
+        app.register_property::<ImageProperty>();
 
         {
             use property::text::*;

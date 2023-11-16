@@ -10,6 +10,7 @@ mod stylesheet_state;
 pub(crate) mod impls;
 /// Impls for `bevy_text` [`Text`] component
 pub(crate) mod text;
+pub(crate) mod image_property;
 
 pub use {
     cache_state::*, cached_properties::*, property_meta::*, property_token::*, property_values::*,
