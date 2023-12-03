@@ -36,7 +36,11 @@ impl<'w, 's, T: Component> ComponentFilter for SystemState<Query<'w, 's, Entity,
     }
 
     fn get_change_ticks(&self, world: &World, entity: Entity) -> Option<ComponentTicks> {
-        world.entity(entity).get_change_ticks::<T>()
+        if let Some(entity_ref) = world.get_entity(entity) {
+            entity_ref.get_change_ticks::<T>()
+        }else {
+            None
+        }
     }
 }
 
@@ -438,9 +442,6 @@ fn any_component<T: Component>(world: &World, entities: &SmallVec<[Entity; 8]>) 
                     return true;
                 }
             }
-        } else{
-            // it did change- it does not exist anymore
-            return true;
         }
     }
     false
