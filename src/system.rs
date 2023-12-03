@@ -432,10 +432,15 @@ fn any_component<T: Component>(world: &World, entities: &SmallVec<[Entity; 8]>) 
     let this_run = world.read_change_tick();
     let last_run = world.last_change_tick();
     for e in entities {
-        if let Some(ticks) = world.entity(*e).get_change_ticks::<T>() {
-            if ticks.is_changed(last_run, this_run) {
-                return true;
+        if let Some(entit_ref) = world.get_entity(*e) {
+            if let Some(ticks) = entit_ref.get_change_ticks::<T>() {
+                if ticks.is_changed(last_run, this_run) {
+                    return true;
+                }
             }
+        } else{
+            // it did change- it does not exist anymore
+            return true;
         }
     }
     false
